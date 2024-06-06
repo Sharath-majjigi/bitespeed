@@ -29,13 +29,13 @@ public class ContactService {
 
         if (contacts.isEmpty()) {
             Contact newContact = mapper.buildPrimaryContact(contactRequest);
-            contactRepository.save(newContact);
+            newContact = contactRepository.save(newContact);
             return mapper.getContactResponse(newContact, new ArrayList<>());
         }
 
         Contact primaryContact = mapper.getPrimaryContact(contacts);
 
-        if (!isContactInfoExists(contacts, contactRequest)) {
+        if (isContactInfoExists(contacts, contactRequest)) {
             Contact newSecondaryContact = mapper.buildSecondaryContact(contactRequest, primaryContact);
             contactRepository.save(newSecondaryContact);
             contacts.add(newSecondaryContact);

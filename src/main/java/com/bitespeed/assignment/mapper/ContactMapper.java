@@ -14,8 +14,8 @@ public class ContactMapper {
 
     public Contact buildPrimaryContact(ContactRequest contactRequest) {
         return Contact.builder()
-            .email(Utils.getOrNull(contactRequest::getEmail))
-            .phoneNumber(Utils.getOrNull(contactRequest::getPhoneNumber))
+            .email(contactRequest.getEmail()!=null ? contactRequest.getEmail() : "")
+            .phoneNumber(contactRequest.getPhoneNumber()!=null ? contactRequest.getPhoneNumber() : "")
             .linkPrecedence(LinkPrecedence.PRIMARY)
             .build();
     }
@@ -24,8 +24,8 @@ public class ContactMapper {
         return ContactResponse.builder()
                 .contact(ContactData.builder()
                         .primaryContactId(newContact.getId())
-                        .emails(List.of(newContact.getEmail()))
-                        .phoneNumbers(List.of(newContact.getPhoneNumber()))
+                        .emails(List.of(newContact.getEmail()!=null ? newContact.getEmail() : ""))
+                        .phoneNumbers(List.of(newContact.getPhoneNumber()!=null ? newContact.getPhoneNumber() : ""))
                         .secondaryContactIds(secondaryContactIds)
                         .build())
                 .build();

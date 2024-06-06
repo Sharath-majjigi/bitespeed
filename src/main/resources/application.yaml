@@ -1,0 +1,17 @@
+server:
+  port: 5001
+
+spring:
+  application:
+    name: bite-speed-assignment
+  datasource:
+    username: root
+    password: sharath2024
+    url: jdbc:mysql://127.0.0.1:3306/bite-speed
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+    hibernate:
+      ddl-auto: update
