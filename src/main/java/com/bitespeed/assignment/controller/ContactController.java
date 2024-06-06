@@ -1,5 +1,7 @@
 package com.bitespeed.assignment.controller;
 
+import com.bitespeed.assignment.dto.request.ContactRequest;
+import com.bitespeed.assignment.dto.response.ContactResponse;
 import com.bitespeed.assignment.service.ContactService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -17,10 +18,9 @@ import java.util.Map;
 public class ContactController {
 
     ContactService contactService;
+
     @PostMapping("/identify")
-    public Map<String, Object> identify(@RequestBody Map<String, String> request) {
-        String email = request.get("email");
-        String phoneNumber = request.get("phoneNumber");
-        return contactService.identifyContact(email, phoneNumber);
+    public ContactResponse identify(@RequestBody ContactRequest contactRequest) {
+        return contactService.identifyContact(contactRequest);
     }
 }

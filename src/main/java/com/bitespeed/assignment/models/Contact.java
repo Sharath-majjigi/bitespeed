@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Builder
 @Getter
@@ -13,14 +11,18 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Contact extends BaseEntity{
+public class Contact extends BaseEntity {
 
+    @Column(name = "phone_number")
     String phoneNumber;
 
+    @Column(name = "email")
     String email;
 
+    @Column(name = "linked_id")
     Long linkedId;
 
+    @Column(name = "link_precedence")
     @Enumerated(EnumType.STRING)
     LinkPrecedence linkPrecedence;
 }
