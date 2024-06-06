@@ -30,4 +30,20 @@ public class ContactMapper {
                         .build())
                 .build();
     }
+
+    public Contact buildSecondaryContact(ContactRequest contactRequest, Contact primaryContact) {
+        return Contact.builder()
+                .email(contactRequest.getEmail())
+                .phoneNumber(contactRequest.getPhoneNumber())
+                .linkedId(primaryContact.getId())
+                .linkPrecedence(LinkPrecedence.SECONDARY)
+                .build();
+    }
+
+    public Contact getPrimaryContact(List<Contact> contacts) {
+        return contacts.stream()
+                .filter(contact -> contact.getLinkPrecedence() == LinkPrecedence.PRIMARY)
+                .findFirst()
+                .orElse(contacts.get(0));
+    }
 }

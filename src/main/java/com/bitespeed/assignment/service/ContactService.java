@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -29,37 +30,46 @@ public class ContactService {
         if (contacts.isEmpty()) {
             Contact newContact = mapper.buildPrimaryContact(contactRequest);
             contactRepository.save(newContact);
-            return mapper.getContactResponse(newContact,new ArrayList<>());
+            return mapper.getContactResponse(newContact, new ArrayList<>());
         }
 
-        Contact primaryContact = contacts.stream()
-                .filter(contact -> contact.getLinkPrecedence() == LinkPrecedence.PRIMARY)
-                .findFirst()
-                .orElse(contacts.get(0));
+        Contact primaryContact = mapper.getPrimaryContact(contacts);
 
+        if (!isContactInfoExists(contacts, contactRequest)) {
+            Contact newSecondaryContact = mapper.buildSecondaryContact(contactRequest, primaryContact);
+            contactRepository.save(newSecondaryContact);
+            contacts.add(newSecondaryContact);
+        }
+
+        primaryContact = updatePrimaryContactIfNeeded(contacts, primaryContact);
         List<Long> secondaryContactIds = getSecondaryContactIds(contacts, primaryContact);
-
-        if (contacts.stream().noneMatch(contact -> contact.getId().equals(primaryContact.getId()))) {
-            primaryContact.setEmail(contactRequest.getEmail());
-            primaryContact.setPhoneNumber(contactRequest.getPhoneNumber());
-            contactRepository.save(primaryContact);
-        }
 
         return mapper.getContactResponse(primaryContact, secondaryContactIds);
     }
 
-    private List<Long> getSecondaryContactIds(List<Contact> contacts, Contact primaryContact) {
-//        Set<String> emails = new HashSet<>();
-//        Set<String> phoneNumbers = new HashSet<>();
-        List<Long> secondaryContactIds = new ArrayList<>();
+    private boolean isContactInfoExists(List<Contact> contacts, ContactRequest contactRequest) {
+        return contacts.stream().anyMatch(contact ->
+                contact.getEmail().equals(contactRequest.getEmail()) ||
+                contact.getPhoneNumber().equals(contactRequest.getPhoneNumber()));
+    }
 
+    private Contact updatePrimaryContactIfNeeded(List<Contact> contacts, Contact primaryContact) {
         for (Contact contact : contacts) {
-//            if (contact.getEmail() != null) emails.add(contact.getEmail());
-//            if (contact.getPhoneNumber() != null) phoneNumbers.add(contact.getPhoneNumber());
-            if (!contact.getId().equals(primaryContact.getId())) {
-                secondaryContactIds.add(contact.getId());
+            if (contact.getLinkPrecedence() == LinkPrecedence.PRIMARY && !contact.equals(primaryContact)) {
+                primaryContact.setEmail(contact.getEmail());
+                primaryContact.setPhoneNumber(contact.getPhoneNumber());
+                contactRepository.save(primaryContact);
             }
         }
-        return secondaryContactIds;
+        return primaryContact;
     }
+
+    private List<Long> getSecondaryContactIds(List<Contact> contacts, Contact primaryContact) {
+        return contacts.stream()
+                .filter(contact -> !contact.equals(primaryContact) && contact.getLinkPrecedence() == LinkPrecedence.SECONDARY)
+                .map(Contact::getId)
+                .collect(Collectors.toList());
+    }
+
+
 }
