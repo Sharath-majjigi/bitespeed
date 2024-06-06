@@ -5,6 +5,7 @@ import com.bitespeed.assignment.dto.response.ContactData;
 import com.bitespeed.assignment.dto.response.ContactResponse;
 import com.bitespeed.assignment.models.Contact;
 import com.bitespeed.assignment.models.LinkPrecedence;
+import com.bitespeed.assignment.others.Utils;
 import org.springframework.stereotype.Component;
 import java.util.List;
 
@@ -13,8 +14,8 @@ public class ContactMapper {
 
     public Contact buildPrimaryContact(ContactRequest contactRequest) {
         return Contact.builder()
-            .email(contactRequest.getEmail())
-            .phoneNumber(contactRequest.getPhoneNumber())
+            .email(Utils.getOrNull(contactRequest::getEmail))
+            .phoneNumber(Utils.getOrNull(contactRequest::getPhoneNumber))
             .linkPrecedence(LinkPrecedence.PRIMARY)
             .build();
     }
