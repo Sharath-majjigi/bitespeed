@@ -5,27 +5,48 @@ import com.bitespeed.assignment.dto.response.ContactData;
 import com.bitespeed.assignment.dto.response.ContactResponse;
 import com.bitespeed.assignment.models.Contact;
 import com.bitespeed.assignment.models.LinkPrecedence;
-import com.bitespeed.assignment.others.Utils;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class ContactMapper {
 
     public Contact buildPrimaryContact(ContactRequest contactRequest) {
         return Contact.builder()
-            .email(contactRequest.getEmail()!=null ? contactRequest.getEmail() : "")
-            .phoneNumber(contactRequest.getPhoneNumber()!=null ? contactRequest.getPhoneNumber() : "")
-            .linkPrecedence(LinkPrecedence.PRIMARY)
-            .build();
+                .email(contactRequest.getEmail() != null ? contactRequest.getEmail() : "")
+                .phoneNumber(contactRequest.getPhoneNumber() != null ? contactRequest.getPhoneNumber() : "")
+                .linkPrecedence(LinkPrecedence.PRIMARY)
+                .build();
     }
 
-    public ContactResponse getContactResponse(Contact newContact,List<Long> secondaryContactIds) {
+    public ContactResponse getContactResponse(Contact primaryContact, List<Contact> secondaryContacts) {
+        List<String> emails = new ArrayList<>();
+        List<String> phoneNumbers = new ArrayList<>();
+
+        emails.add(primaryContact.getEmail());
+        phoneNumbers.add(primaryContact.getPhoneNumber());
+
+        for (Contact secondaryContact : secondaryContacts) {
+            if (!emails.contains(secondaryContact.getEmail())) {
+                emails.add(secondaryContact.getEmail());
+            }
+            if (!phoneNumbers.contains(secondaryContact.getPhoneNumber())) {
+                phoneNumbers.add(secondaryContact.getPhoneNumber());
+            }
+        }
+
+        List<Long> secondaryContactIds = secondaryContacts.stream()
+                .map(Contact::getId)
+                .collect(Collectors.toList());
+
         return ContactResponse.builder()
                 .contact(ContactData.builder()
-                        .primaryContactId(newContact.getId())
-                        .emails(List.of(newContact.getEmail()!=null ? newContact.getEmail() : ""))
-                        .phoneNumbers(List.of(newContact.getPhoneNumber()!=null ? newContact.getPhoneNumber() : ""))
+                        .primaryContactId(primaryContact.getId())
+                        .emails(emails)
+                        .phoneNumbers(phoneNumbers)
                         .secondaryContactIds(secondaryContactIds)
                         .build())
                 .build();
