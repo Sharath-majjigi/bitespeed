@@ -11,6 +11,10 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Table(name = "contact", indexes = {
+        @Index(columnList = "email"),
+        @Index(columnList = "phone_number")
+})
 public class Contact extends BaseEntity {
 
     @Column(name = "phone_number")

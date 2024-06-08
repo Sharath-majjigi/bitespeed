@@ -28,8 +28,8 @@ public class ContactService {
     ContactMapper mapper;
 
     public ContactResponse identifyContact(ContactRequest contactRequest) {
-        if (contactRequest.getEmail().isEmpty() && contactRequest.getPhoneNumber().isEmpty()) {
-            throw new ContactException(HttpStatus.BAD_REQUEST,"Either email or phoneNumber must be provided");
+        if (checkIfBothEmailAndPhoneNumberIsAbsent(contactRequest)) {
+            throw new ContactException(HttpStatus.BAD_REQUEST, "Either email or phoneNumber must be provided");
         }
 
         List<Contact> contacts = contactRepository.findByEmailOrPhoneNumber(
@@ -44,8 +44,7 @@ public class ContactService {
         Contact primaryContact = mapper.getPrimaryContact(contacts);
 
         // If the contact request has new email or phone number information
-        boolean result = shouldCreateSecondaryContact(contacts, contactRequest);
-        if (result) {
+        if (shouldCreateSecondaryContact(contacts, contactRequest)) {
             Contact newSecondaryContact = mapper.buildSecondaryContact(contactRequest, primaryContact);
             contactRepository.save(newSecondaryContact);
             contacts.add(newSecondaryContact);
@@ -57,22 +56,42 @@ public class ContactService {
         return mapper.getContactResponse(primaryContact, secondaryContacts);
     }
 
+    private boolean checkIfBothEmailAndPhoneNumberIsAbsent(ContactRequest contactRequest) {
+        String email = contactRequest.getEmail();
+        String phone = contactRequest.getPhoneNumber();
+        return (email == null || email.isEmpty()) && (phone == null || phone.isEmpty());
+    }
+
     private boolean shouldCreateSecondaryContact(List<Contact> contacts, ContactRequest contactRequest) {
         String requestEmail = contactRequest.getEmail();
         String requestPhoneNumber = contactRequest.getPhoneNumber();
 
+        // Check if there's an exact match for a secondary contact
+        boolean exactMatchExists = contacts.stream().anyMatch(contact ->
+                requestEmail != null && requestEmail.equals(contact.getEmail()) &&
+                requestPhoneNumber != null && requestPhoneNumber.equals(contact.getPhoneNumber())
+        );
+
+        if (exactMatchExists) {
+            return false;
+        }
+
+        // Check if the contact request has new email or phone number information
         return contacts.stream().anyMatch(contact -> {
             String contactEmail = contact.getEmail();
             String contactPhoneNumber = contact.getPhoneNumber();
 
             boolean sameEmailDifferentPhone = requestEmail != null && requestEmail.equals(contactEmail) &&
                     (requestPhoneNumber == null || !requestPhoneNumber.equals(contactPhoneNumber));
+
             boolean samePhoneDifferentEmail = requestPhoneNumber != null && requestPhoneNumber.equals(contactPhoneNumber) &&
                     (requestEmail == null || !requestEmail.equals(contactEmail));
 
             return sameEmailDifferentPhone || samePhoneDifferentEmail;
         });
     }
+
+
 
     private Contact updatePrimaryContactIfNeeded(List<Contact> contacts, Contact primaryContact) {
         for (Contact contact : contacts) {
