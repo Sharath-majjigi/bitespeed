@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql-db
+    environment:
+      MYSQL_DATABASE: bite-speed
+      MYSQL_ROOT_PASSWORD: sharath2024
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: identity-reconciliation
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/bite-speed
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: sharath2024
+    ports:
+      - "5001:5001"
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
