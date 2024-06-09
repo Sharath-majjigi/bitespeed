@@ -1,6 +1,7 @@
 server:
   port: 5001
 
+#TODO: Ideally credentials should be kept in secrets
 spring:
   application:
     name: bite-speed-assignment

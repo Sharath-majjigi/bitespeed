@@ -1,5 +1,7 @@
 version: '3.8'
 
+#TODO: Ideally all these credentials should be kept in secrets
+
 services:
   db:
     image: mysql:8.0
