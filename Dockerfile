@@ -1,4 +1,4 @@
-FROM openjdk:21-jdk
+FROM --platform=linux/amd64 openjdk:21-jdk
 
 ENV APP_HOME=/usr/app/
 

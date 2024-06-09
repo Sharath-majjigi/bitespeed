@@ -1,35 +1,37 @@
-version: '3.8'
-
 #TODO: Ideally all these credentials should be kept in secrets
 
-services:
-  db:
-    image: mysql:8.0
-    container_name: mysql-db
-    environment:
-      MYSQL_DATABASE: bite-speed
-      MYSQL_ROOT_PASSWORD: sharath2024
-    ports:
-      - "3306:3306"
-    networks:
-      - app-network
+version: '3.8'
 
+services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: identity-reconciliation
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/bite-speed
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: sharath2024
     ports:
       - "5001:5001"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://dpg-cpiprn4f7o1s73bkrsgg-a.ohio-postgres.render.com:5432/identity_recon_db
+      SPRING_DATASOURCE_USERNAME: identity_recon_db_user
+      SPRING_DATASOURCE_PASSWORD: QOiHuRAFQ9KEjKMFUIMuhssmJtwmwiLC
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
     depends_on:
       - db
+    networks:
+      - app-network
+
+  db:
+    image: postgres:14
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: identity_recon_db
+      POSTGRES_USER: identity_recon_db_user
+      POSTGRES_PASSWORD: QOiHuRAFQ9KEjKMFUIMuhssmJtwmwiLC
+    ports:
+      - "5432:5432"
     networks:
       - app-network
 
 networks:
   app-network:
     driver: bridge
+

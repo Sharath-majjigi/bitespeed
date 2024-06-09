@@ -6,13 +6,14 @@ spring:
   application:
     name: bite-speed-assignment
   datasource:
-    username: root
-    password: sharath2024
-    url: jdbc:mysql://127.0.0.1:3306/bite-speed
+    username: identity_recon_db_user
+    password: QOiHuRAFQ9KEjKMFUIMuhssmJtwmwiLC
+    url: jdbc:postgresql://dpg-cpiprn4f7o1s73bkrsgg-a.ohio-postgres.render.com:5432/identity_recon_db
+    driver-class-name: org.postgresql.Driver
   jpa:
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
